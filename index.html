@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ATLAS-1: 3D Drug-Treated Cancer Cells</title>
+  <link rel="icon" href="assets/social/atlas_og.png" />
+
+  <!-- Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sentinal4d.github.io/datasets/atlas-1/" />
+  <meta property="og:title" content="ATLAS-1 Dataset" />
+  <meta property="og:description" content="3D point clouds & meshes of drug-treated WM266-4 melanoma cells for morphology research & benchmarking." />
+  <meta property="og:image" content="assets/social/atlas_og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b0d12; --fg:#e6e9ef; --muted:#a6adbb; --card:#12161f; --chip:#1b2130; --link:#a5b4fc;
+      --accent:#7dd3fc; --accent2:#fca5a5; --shadow:0 12px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+         color:var(--fg); background:linear-gradient(180deg,#0b0d12 0%,#0b0d12 60%,#0f1320 100%);}
+
+    /* Full-width hero */
+    .hero{
+      width:100%;
+      padding:48px 24px;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(56,189,248,.10), transparent),
+        radial-gradient(900px 500px at 110% 0%, rgba(252,165,165,.10), transparent);
+      border-bottom:1px solid #182032;
+    }
+    .hero-inner{max-width:1200px; margin:0 auto; display:grid; grid-template-columns: 1.2fr .8fr; gap:28px; align-items:center}
+    .title{font-size:44px; line-height:1.05; margin:0; font-weight:800}
+    .subtitle{font-size:18px; color:var(--muted); margin:10px 0 0}
+    .hero-card{background:var(--card); border:1px solid #182032; border-radius:18px; padding:18px; box-shadow:var(--shadow)}
+    .hero-card img{width:100%; border-radius:12px}
+
+    /* Content wrap */
+    .wrap{max-width:1200px; margin:0 auto; padding:28px 20px}
+    .section{margin:42px 0 24px}
+    .section h2{margin:0 0 10px; font-size:28px}
+    .section p{color:var(--muted); margin:8px 0 0}
+    a{color:var(--link); text-decoration:none} a:hover{text-decoration:underline}
+    .chip{padding:5px 10px; border-radius:999px; background:var(--chip); border:1px solid #23314a; font-size:12px}
+
+    .info-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+    .panel{background:var(--card); border:1px solid #182032; border-radius:14px; box-shadow:var(--shadow); padding:16px}
+    ul{margin:0.4rem 0 0.6rem 1.1rem}
+
+    /* Viewer */
+    .viewer-grid{display:grid; grid-template-columns:1fr 360px; gap:18px}
+    .viewer-card{background:var(--card); border:1px solid #182032; border-radius:14px; overflow:hidden; box-shadow:var(--shadow)}
+    .ctrl .row{display:flex; gap:8px; align-items:center; justify-content:space-between; margin:8px 0}
+    select{width:100%; background:#0e1422; border:1px solid #23314a; color:var(--fg); padding:10px; border-radius:10px}
+    .muted{color:var(--muted); font-size:14px}
+
+    /* Metrics */
+    .metrics{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+    .metric{display:flex; flex-direction:column; gap:4px; background:#0e1422; border:1px solid #23314a; border-radius:12px; padding:10px}
+    .metric .label{font-size:12px; color:var(--muted)}
+    .metric .value{font-weight:700; font-size:14px}
+
+    footer{margin:56px 0 30px; color:var(--muted); font-size:14px; text-align:center}
+
+    @media (max-width: 1020px){
+      .hero-inner{grid-template-columns:1fr}
+      .info-grid{grid-template-columns:1fr}
+      .viewer-grid{grid-template-columns:1fr}
+      .metrics{grid-template-columns:1fr 1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1 class="title">ATLAS-1: 3D Drug-Treated Cancer Cells</h1>
+        <p class="subtitle">
+          1,500 single-cell point clouds from WM266-4 melanoma embedded in collagen and imaged with oblique-plane light-sheet microscopy.
+          Includes Nocodazole, Blebbistatin, and Control conditions.
+        </p>
+      </div>
+      <div class="hero-card">
+        <img src="assets/social/atlas_og.png" alt="ATLAS-1 overview" />
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- INFORMATION -->
+    <section id="info" class="section">
+      <h2>Information</h2>
+      <div class="info-grid">
+        <div class="panel">
+          <h3>Summary</h3>
+          <p>
+            ATLAS-1 provides 3D cell morphologies under drug treatment for benchmarking point-cloud methods and studying shape changes.
+            Each cell is represented as a 1024-point cloud sampled from a reconstructed surface mesh.
+          </p>
+          <ul>
+            <li><strong>Cells:</strong> 1,500 (500 per condition)</li>
+            <li><strong>Conditions:</strong>
+              Nocodazole (rounding), Blebbistatin (elongation), Control (baseline variability)</li>
+            <li><strong>Pipeline:</strong> segmentation → marching cubes + Laplacian smoothing → 1024-point sampling</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Access</h3>
+          <ul>
+            <li><strong>Hugging Face dataset:</strong> <a id="hfLink" href="#" target="_blank">Open on HF</a></li>
+            <li><strong>Metadata:</strong> <code>metadata.csv</code> with labels & experimental details</li>
+            <li><strong>Loaders:</strong> Python utilities for reading point clouds & meshes</li>
+          </ul>
+          <p class="muted">
+            Cite the PointMIL paper when using this dataset. See license details on the dataset page.
+          </p>
+          <div style="margin-top:8px"><span class="chip" id="licenseChip">License</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEWER -->
+    <section id="viewer" class="section">
+      <h2>Data Viewer</h2>
+      <p>Choose a condition to preview a representative cell mesh (exported with bproc-pubvis). Drag to orbit, scroll to zoom, right-drag to pan.</p>
+
+      <div class="viewer-grid">
+        <div class="viewer-card">
+          <!-- High-quality interactive mesh viewer -->
+          <model-viewer id="mv"
+            src="assets/models/control.glb"
+            camera-controls auto-rotate shadow-intensity="1"
+            tone-mapping="neutral" exposure="1.05" environment-image="neutral"
+            style="width:100%; height:560px; display:block; background:#ffffff">
+          </model-viewer>
+        </div>
+
+        <div class="panel">
+          <h3>Controls</h3>
+          <div class="ctrl">
+            <div class="row"><label>Condition</label>
+              <select id="condSelect">
+                <option value="control">Control (untreated)</option>
+                <option value="nocodazole">Nocodazole</option>
+                <option value="blebbistatin">Blebbistatin</option>
+              </select>
+            </div>
+            <div class="row"><label>Auto-rotate</label>
+              <select id="autoSelect">
+                <option value="on">On</option>
+                <option value="off">Off</option>
+              </select>
+            </div>
+            <div class="row"><label>Shadow</label>
+              <input id="shadowSlider" type="range" min="0" max="2" step="0.05" value="1.0"/>
+            </div>
+            <div class="row"><label>Exposure</label>
+              <input id="expSlider" type="range" min="0.6" max="1.6" step="0.02" value="1.05"/>
+            </div>
+            <div class="row"><label>Background</label>
+              <select id="bgSelect">
+                <option value="#ffffff">White</option>
+                <option value="#f6f7f9">Paper</option>
+                <option value="#0b0d12">Dark</option>
+              </select>
+            </div>
+
+            <!-- Metrics -->
+            <h3 style="margin-top:16px">Metrics</h3>
+            <div class="metrics">
+              <div class="metric">
+                <div class="label">Surface area</div>
+                <div class="value" id="metric-area">—</div>
+              </div>
+              <div class="metric">
+                <div class="label">Volume</div>
+                <div class="value" id="metric-volume">—</div>
+              </div>
+              <div class="metric">
+                <div class="label">Triangles</div>
+                <div class="value" id="metric-tris">—</div>
+              </div>
+            </div>
+
+            <p class="muted" style="margin-top:10px">
+              Tip: you can host multiple meshes per condition & randomly pick one—see code comments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2025 Sentinal4D. ATLAS-1 dataset.
+    </footer>
+  </main>
+
+  <!-- model-viewer (web component) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
+  <!-- Three.js + GLTFLoader (needed for metric computation) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/DRACOLoader.js"></script>
+
+
+  <script>
+    // ==== CONFIG: set these to your actual Hugging Face dataset & license text ====
+    const HF_URL = "https://huggingface.co/datasets/Sentinal4D/ATLAS-1";  // <-- update if needed
+    const LICENSE_SHORT = "Sentinal4D CEULA (research use). See dataset card."; // Or "CC-BY-4.0" if you chose that
+
+    document.getElementById('hfLink').href = HF_URL;
+    document.getElementById('licenseChip').textContent = LICENSE_SHORT;
+
+    // If you later host multiple meshes per condition, add arrays and pick randomly.
+    const MODEL_MANIFEST = {
+      control:      ["assets/models/crazy.glb"],
+      nocodazole:   ["assets/models/nocodazole.glb"],
+      blebbistatin: ["assets/models/blebbistatin.glb"]
+    };
+
+    const mv = document.getElementById('mv');
+    const condSelect = document.getElementById('condSelect');
+    const autoSelect = document.getElementById('autoSelect');
+    const shadowSlider = document.getElementById('shadowSlider');
+    const expSlider = document.getElementById('expSlider');
+    const bgSelect = document.getElementById('bgSelect');
+
+    function pickOne(arr){ return arr[(Math.random()*arr.length)|0]; }
+
+    function loadCondition(cond){
+      const arr = MODEL_MANIFEST[cond] || MODEL_MANIFEST.control;
+      const glb = pickOne(arr);
+      mv.src = glb;
+    }
+
+    condSelect.addEventListener('change', () => loadCondition(condSelect.value));
+    autoSelect.addEventListener('change', () => {
+      if (autoSelect.value === 'on') mv.setAttribute('auto-rotate', '');
+      else mv.removeAttribute('auto-rotate');
+    });
+    shadowSlider.addEventListener('input', () => { mv.shadowIntensity = parseFloat(shadowSlider.value); });
+    expSlider.addEventListener('input', () => { mv.exposure = parseFloat(expSlider.value); });
+    bgSelect.addEventListener('change', () => { mv.style.background = bgSelect.value; });
+
+    // defaults
+    mv.style.background = '#ffffff';
+    loadCondition(condSelect.value);
+  </script>
+
+  <!-- Surface area / volume / triangle count computation -->
+  <script>
+  // ==== UNITS: set this if your GLBs are in micrometers (µm) ====
+  // If 1 GLB unit = 1 µm, then unitsPerMeter = 1e6.
+  // If already in meters, leave as 1.
+  const unitsPerMeter = 1; // ← adjust if your models are in µm
+  const scaleToMeters = 1 / unitsPerMeter;
+
+  const areaEl = document.getElementById('metric-area');
+  const volEl  = document.getElementById('metric-volume');
+  const trisEl = document.getElementById('metric-tris');
+  const mv     = document.getElementById('mv');
+
+  // THREE loaders
+  const gltfLoader  = new THREE.GLTFLoader();
+  const dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // public decoder
+  gltfLoader.setDRACOLoader(dracoLoader);
+
+  // Helper: pretty number
+  function pretty(x){
+    if(!isFinite(x) || x === 0) return '0';
+    const a = Math.abs(x);
+    if(a >= 1e4 || a < 1e-3) return x.toExponential(2);
+    return x.toLocaleString(undefined, { maximumFractionDigits: 3 });
+  }
+
+  // Recompute on successful model-viewer load
+  mv.addEventListener('load', () => {
+    const url = mv.currentSrc || mv.src;
+    console.log('[metrics] model-viewer load →', url);
+    computeMetrics(url);
+  });
+
+  // Also recompute whenever you change the condition (right after you set mv.src)
+  // Hook into your existing loadCondition function if possible:
+  const _origLoadCondition = loadCondition;
+  window.loadCondition = function(cond){
+    _origLoadCondition(cond);
+    const url = mv.currentSrc || mv.src;
+    console.log('[metrics] condition changed →', cond, 'url=', url);
+    // wait a tick so model-viewer begins fetch; we'll also get 'load' later,
+    // but this gives us a chance to log early 404s
+    setTimeout(() => computeMetrics(url), 0);
+  };
+
+  async function computeMetrics(url){
+    try{
+      if(!url){ throw new Error('empty URL'); }
+      // Resolve relative paths against the document base (avoids CORS surprises in dev)
+      const absUrl = new URL(url, document.baseURI).href;
+      console.log('[metrics] loading GLB via GLTFLoader:', absUrl);
+
+      // UI: show progress
+      areaEl.textContent = volEl.textContent = trisEl.textContent = '…';
+
+      const gltf = await new Promise((resolve, reject) => {
+        gltfLoader.load(absUrl, resolve, undefined, (err)=>{
+          console.error('[metrics] GLTF load error:', err);
+          reject(err);
+        });
+      });
+
+      gltf.scene.updateMatrixWorld(true);
+
+      let totalArea = 0;
+      let totalVolumeSigned = 0;
+      let triCount = 0;
+
+      const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+      const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+
+      let foundAnyMesh = false;
+
+      gltf.scene.traverse((obj) => {
+        if(!obj.isMesh || !obj.geometry) return;
+        foundAnyMesh = true;
+
+        const geom = obj.geometry;
+        const posAttr = geom.getAttribute('position');
+        if(!posAttr){
+          console.warn('[metrics] mesh without position attribute skipped:', obj.name);
+          return;
+        }
+
+        let index = geom.index;
+        if(!index){
+          // Non-indexed geometry: require multiple-of-3 positions
+          const count = posAttr.count;
+          if (count % 3 !== 0) {
+            console.warn('[metrics] non-indexed non-triangulated geometry skipped:', obj.name);
+            return;
+          }
+          const indices = new Uint32Array(count);
+          for (let i=0;i<count;i++) indices[i] = i;
+          index = { count: indices.length, array: indices };
+        }
+
+        const m = obj.matrixWorld;
+
+        for(let i=0; i<index.count; i+=3){
+          const ia = index.array[i], ib = index.array[i+1], ic = index.array[i+2];
+
+          vA.fromBufferAttribute(posAttr, ia).applyMatrix4(m).multiplyScalar(scaleToMeters);
+          vB.fromBufferAttribute(posAttr, ib).applyMatrix4(m).multiplyScalar(scaleToMeters);
+          vC.fromBufferAttribute(posAttr, ic).applyMatrix4(m).multiplyScalar(scaleToMeters);
+
+          // Triangle area = 0.5 * |(c - b) x (a - b)|
+          cb.subVectors(vC, vB);
+          ab.subVectors(vA, vB);
+          const area = cb.cross(ab).length() * 0.5;
+          totalArea += area;
+
+          // Signed volume via tetrahedra wrt origin: V = dot(a, cross(b, c)) / 6
+          const vol6 = vA.dot( vB.clone().cross(vC) );
+          totalVolumeSigned += vol6 / 6;
+
+          triCount++;
+        }
+      });
+
+      if(!foundAnyMesh){
+        console.warn('[metrics] no meshes found in GLB (points/lines aren’t supported for area/volume).');
+        areaEl.textContent = volEl.textContent = trisEl.textContent = '—';
+        return;
+      }
+
+      const totalVolume = Math.abs(totalVolumeSigned); // assumes closed surface
+
+      areaEl.textContent = pretty(totalArea) + ' m²';
+      volEl.textContent  = pretty(totalVolume) + ' m³';
+      trisEl.textContent = triCount.toLocaleString();
+
+      console.log('[metrics] done → area:', totalArea, ' volume:', totalVolume, ' tris:', triCount);
+    }catch(err){
+      console.error('[metrics] computation failed:', err);
+      areaEl.textContent = volEl.textContent = trisEl.textContent = '—';
+    }
+  }
+</script>
+
+
+</body>
+</html>
