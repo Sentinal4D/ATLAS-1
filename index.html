@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ATLAS-1: 3D Drug-Treated Cancer Cells</title>
-  <link rel="icon" href="assets/social/atlas_og.png" />
+  <link rel="icon" href="assets/favicon_io/favicon_black.avif" />
 
   <!-- Social -->
   <meta property="og:type" content="website" />
@@ -90,7 +90,7 @@
         </p>
       </div>
       <div class="hero-card">
-        <img src="assets/social/atlas_og.png" alt="ATLAS-1 overview" />
+        <img src="assets/img/logo_black.png" alt="ATLAS-1 overview" />
       </div>
     </div>
   </header>
@@ -223,7 +223,7 @@
 
     // If you later host multiple meshes per condition, add arrays and pick randomly.
     const MODEL_MANIFEST = {
-      control:      ["assets/models/crazy.glb"],
+      control:      ["assets/models/wireframe.glb"],
       nocodazole:   ["assets/models/nocodazole.glb"],
       blebbistatin: ["assets/models/blebbistatin.glb"]
     };
@@ -258,25 +258,23 @@
   </script>
 
   <!-- Surface area / volume / triangle count computation -->
-  <script>
+<!-- Surface area / volume / triangle count computation -->
+<script>
   // ==== UNITS: set this if your GLBs are in micrometers (µm) ====
-  // If 1 GLB unit = 1 µm, then unitsPerMeter = 1e6.
-  // If already in meters, leave as 1.
-  const unitsPerMeter = 1; // ← adjust if your models are in µm
+  // If 1 GLB unit = 1 µm, then unitsPerMeter = 1e6. If already meters, leave as 1.
+  const unitsPerMeter = 1;
   const scaleToMeters = 1 / unitsPerMeter;
 
   const areaEl = document.getElementById('metric-area');
   const volEl  = document.getElementById('metric-volume');
   const trisEl = document.getElementById('metric-tris');
-  const mv     = document.getElementById('mv');
 
   // THREE loaders
   const gltfLoader  = new THREE.GLTFLoader();
   const dracoLoader = new THREE.DRACOLoader();
-  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // public decoder
+  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
   gltfLoader.setDRACOLoader(dracoLoader);
 
-  // Helper: pretty number
   function pretty(x){
     if(!isFinite(x) || x === 0) return '0';
     const a = Math.abs(x);
@@ -287,37 +285,29 @@
   // Recompute on successful model-viewer load
   mv.addEventListener('load', () => {
     const url = mv.currentSrc || mv.src;
-    console.log('[metrics] model-viewer load →', url);
     computeMetrics(url);
   });
 
-  // Also recompute whenever you change the condition (right after you set mv.src)
-  // Hook into your existing loadCondition function if possible:
-  const _origLoadCondition = loadCondition;
-  window.loadCondition = function(cond){
-    _origLoadCondition(cond);
-    const url = mv.currentSrc || mv.src;
-    console.log('[metrics] condition changed →', cond, 'url=', url);
-    // wait a tick so model-viewer begins fetch; we'll also get 'load' later,
-    // but this gives us a chance to log early 404s
-    setTimeout(() => computeMetrics(url), 0);
-  };
+  // If you override loadCondition earlier, hook it so metrics recompute as well
+  if (typeof window.loadCondition === 'function') {
+    const _origLoadCondition = window.loadCondition;
+    window.loadCondition = function(cond){
+      _origLoadCondition(cond);
+      const url = mv.currentSrc || mv.src;
+      setTimeout(() => computeMetrics(url), 0);
+    };
+  }
 
   async function computeMetrics(url){
     try{
-      if(!url){ throw new Error('empty URL'); }
-      // Resolve relative paths against the document base (avoids CORS surprises in dev)
+      if(!url) throw new Error('empty URL');
       const absUrl = new URL(url, document.baseURI).href;
-      console.log('[metrics] loading GLB via GLTFLoader:', absUrl);
 
-      // UI: show progress
+      // show progress
       areaEl.textContent = volEl.textContent = trisEl.textContent = '…';
 
       const gltf = await new Promise((resolve, reject) => {
-        gltfLoader.load(absUrl, resolve, undefined, (err)=>{
-          console.error('[metrics] GLTF load error:', err);
-          reject(err);
-        });
+        gltfLoader.load(absUrl, resolve, undefined, reject);
       });
 
       gltf.scene.updateMatrixWorld(true);
@@ -325,31 +315,22 @@
       let totalArea = 0;
       let totalVolumeSigned = 0;
       let triCount = 0;
+      let foundAnyMesh = false;
 
       const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
       const cb = new THREE.Vector3(), ab = new THREE.Vector3();
 
-      let foundAnyMesh = false;
-
       gltf.scene.traverse((obj) => {
         if(!obj.isMesh || !obj.geometry) return;
         foundAnyMesh = true;
-
         const geom = obj.geometry;
         const posAttr = geom.getAttribute('position');
-        if(!posAttr){
-          console.warn('[metrics] mesh without position attribute skipped:', obj.name);
-          return;
-        }
+        if(!posAttr) return;
 
         let index = geom.index;
         if(!index){
-          // Non-indexed geometry: require multiple-of-3 positions
           const count = posAttr.count;
-          if (count % 3 !== 0) {
-            console.warn('[metrics] non-indexed non-triangulated geometry skipped:', obj.name);
-            return;
-          }
+          if (count % 3 !== 0) return; // not triangulated
           const indices = new Uint32Array(count);
           for (let i=0;i<count;i++) indices[i] = i;
           index = { count: indices.length, array: indices };
@@ -364,22 +345,19 @@
           vB.fromBufferAttribute(posAttr, ib).applyMatrix4(m).multiplyScalar(scaleToMeters);
           vC.fromBufferAttribute(posAttr, ic).applyMatrix4(m).multiplyScalar(scaleToMeters);
 
-          // Triangle area = 0.5 * |(c - b) x (a - b)|
+          // area
           cb.subVectors(vC, vB);
           ab.subVectors(vA, vB);
-          const area = cb.cross(ab).length() * 0.5;
-          totalArea += area;
+          totalArea += cb.cross(ab).length() * 0.5;
 
-          // Signed volume via tetrahedra wrt origin: V = dot(a, cross(b, c)) / 6
-          const vol6 = vA.dot( vB.clone().cross(vC) );
-          totalVolumeSigned += vol6 / 6;
+          // signed volume
+          totalVolumeSigned += vA.dot( vB.clone().cross(vC) ) / 6;
 
           triCount++;
         }
       });
 
       if(!foundAnyMesh){
-        console.warn('[metrics] no meshes found in GLB (points/lines aren’t supported for area/volume).');
         areaEl.textContent = volEl.textContent = trisEl.textContent = '—';
         return;
       }
@@ -389,15 +367,12 @@
       areaEl.textContent = pretty(totalArea) + ' m²';
       volEl.textContent  = pretty(totalVolume) + ' m³';
       trisEl.textContent = triCount.toLocaleString();
-
-      console.log('[metrics] done → area:', totalArea, ' volume:', totalVolume, ' tris:', triCount);
     }catch(err){
-      console.error('[metrics] computation failed:', err);
+      console.error('[metrics] failed:', err);
       areaEl.textContent = volEl.textContent = trisEl.textContent = '—';
     }
   }
 </script>
-
 
 </body>
 </html>
